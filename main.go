@@ -6,6 +6,6 @@ import(
 )
 
 func main(){
-	fmt.Fprintln(os.Stdout, "Go! GO! gO! go!")
+	fmt.Fprintln(os.Stdout, "Go! GO! gO! go! gogo")
 }
 
