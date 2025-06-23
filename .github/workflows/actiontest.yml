@@ -1,0 +1,39 @@
+name: test
+
+on: # 워크플로우가 언제 실행될지 정의하는 트리거(이벤트)
+  push: # 'push' 이벤트가 발생했을 때
+    branches: ["main"] # 특히 'main' 브랜치에 코드가 푸시되었을 때 실행
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. 코드 체크아웃 (Checkout Code)
+      - uses: actions/checkout@v3 # GitHub 저장소의 코드를 러너(가상 환경)로 가져옵니다.
+
+      # 2. Go 환경 설정 (Set up Go)
+      - name: Set up Go # 이 단계의 이름
+        uses: actions/setup-go@v3 # Go 언어 환경을 설정해주는 GitHub Action 사용
+        with:
+          go-version: 1.15 # 설치할 Go 버전 지정 (Go 1.15)
+
+      # 3. Go 애플리케이션 빌드 (Build Go Application)
+      - name: Build # 이 단계의 이름
+        run: go-build -v ./... # Go 바이너리를 빌드하는 명령어 실행 (Go 1.15에서는 go build -v ./... 가 맞습니다)
+
+      # 4. Docker Hub 로그인 (DockerHub Login)
+      - name: DockerHub Login # 이 단계의 이름
+        uses: docker/login-action@v1 # Docker Hub 로그인을 처리해주는 GitHub Action 사용
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }} # GitHub Secrets에 저장된 Docker Hub 사용자 이름 사용
+          password: ${{ secrets.DOCKERHUB_TOKEN }}   # GitHub Secrets에 저장된 Docker Hub 토큰(PAT) 사용
+
+      # 5. Docker 이미지 빌드 및 Docker Hub에 푸시 (Build and Push to DockerHub)
+      - name: build and release to DockerHub # 이 단계의 이름
+        env: # 이 단계에서 사용할 환경 변수 정의
+          NAME: korgosu # Docker Hub 사용자 이름 (닉네임)
+          REPO: test    # Docker Hub 레포지토리 이름
+        run: | # 여러 줄의 쉘 명령어를 실행합니다.
+          docker build -t $REPO . # 현재 디렉토리의 Dockerfile을 사용하여 Docker 이미지 빌드 (태그: test:latest)
+          docker tag $REPO:latest $NAME/$REPO:latest # 빌드된 이미지에 Docker Hub에 푸시할 이름(korgosu/test:latest)으로 태그 추가
+          docker push $NAME/$REPO:latest # Docker Hub에 이미지 푸시 (korgosu/test:latest)
