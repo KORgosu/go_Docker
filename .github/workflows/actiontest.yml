@@ -19,7 +19,7 @@ jobs:
 
       # 3. Go 애플리케이션 빌드 (Build Go Application)
       - name: Build # 이 단계의 이름
-        run: go-build -v ./... # Go 바이너리를 빌드하는 명령어 실행 (Go 1.15에서는 go build -v ./... 가 맞습니다)
+        run: go build -v ./... # Go 바이너리를 빌드하는 명령어 실행 (Go 1.15에서는 go build -v ./... 가 맞습니다)
 
       # 4. Docker Hub 로그인 (DockerHub Login)
       - name: DockerHub Login # 이 단계의 이름
